@@ -8,6 +8,8 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
+using Microsoft.Win32;
 
 namespace Pak
 {
@@ -43,18 +45,50 @@ namespace Pak
             if (data.GetDataPresent(DataFormats.Text))
             {
                 var uri = new Uri((string) data.GetData(DataFormats.Text));
-                Bitmap bmp;
+                byte[] imgData;
                 using (var client = new WebClient())
                 {
-                    var imgData = await client.DownloadDataTaskAsync(uri);
-                    bmp = new Bitmap(new MemoryStream(imgData));
+                    imgData = await client.DownloadDataTaskAsync(uri);
                 }
-            }else if (data.GetDataPresent(DataFormats.FileDrop))
+                DropPanel.Visibility = Visibility.Collapsed;
+                ProgressPanel.Visibility = Visibility.Visible;
+                DragDrop.RemoveDropHandler(Border, OnDrop);
+
+                var details = await Task.Run(() => Packer.UnpackImage(imgData));
+                if (details == null)
+                {
+                    MessageBox.Show("Unable to unpack image, is it a correct image created with this program?", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    ProgressPanel.Visibility = Visibility.Collapsed;
+                    DropPanel.Visibility = Visibility.Visible;
+                    DragDrop.AddDropHandler(Border, OnDrop);
+                    return;
+                }
+
+                var sfd = new SaveFileDialog
+                {
+                    FileName = details.Item1,
+                    AddExtension = true,
+                };
+                var res = sfd.ShowDialog();
+                if (res == null || !res.Value)
+                {
+                    ProgressPanel.Visibility = Visibility.Collapsed;
+                    DropPanel.Visibility = Visibility.Visible;
+                    DragDrop.AddDropHandler(Border, OnDrop);
+                    return;
+                }
+                File.WriteAllBytes(sfd.FileName, details.Item2);
+                ProgressPanel.Visibility = Visibility.Collapsed;
+                DropPanel.Visibility = Visibility.Visible;
+                DragDrop.AddDropHandler(Border, OnDrop);
+            }
+            else if (data.GetDataPresent(DataFormats.FileDrop))
             {
                 DropPanel.Visibility = Visibility.Collapsed;
-                ProgessPanel.Visibility = Visibility.Visible;
+                ProgressPanel.Visibility = Visibility.Visible;
                 DragDrop.RemoveDropHandler(Border, OnDrop);
-                var dat = (string[])data.GetData(DataFormats.FileDrop);
+                var dat = (string[]) data.GetData(DataFormats.FileDrop);
                 if (dat.Length > 1)
                 {
                     MessageBox.Show(this, "If you want to share multiple files at the same time, please zip / 7-zip them first.", "Multiple Files",
@@ -78,7 +112,7 @@ namespace Pak
                 Image.Tag = imgPath;
                 Message.Text = "Drag Image to Comment Box";
                 GoAgainButton.Visibility = Visibility.Visible;
-                ProgessPanel.Visibility = Visibility.Collapsed;
+                ProgressPanel.Visibility = Visibility.Collapsed;
                 DropPanel.Visibility = Visibility.Visible;
             }
             else
