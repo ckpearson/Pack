@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows;
-using Akavache;
 
 namespace Pack
 {
@@ -11,15 +10,12 @@ namespace Pack
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            BlobCache.ApplicationName = "Pack";
-            BlobCache.EnsureInitialized();
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             base.OnStartup(e);
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
-            BlobCache.Shutdown();
             base.OnExit(e);
         }
 
@@ -28,6 +24,7 @@ namespace Pack
             var root = ((Exception) e.ExceptionObject).GetBaseException();
             MessageBox.Show("ERROR:\n\n" + root.Message + "\n\n Full details are now on your Clipboard, please paste them into a new issue", "ERROR!",
                 MessageBoxButton.OK, MessageBoxImage.Error);
+            Clipboard.SetText(root.GetBaseException().ToString());
         }
     }
 }

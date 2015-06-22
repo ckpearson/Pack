@@ -7,18 +7,6 @@
                       BorderThickness="0" GlowBrush="Black"
                       ResizeMode="NoResize"
                       Topmost="True">
-    <controls:MetroWindow.RightWindowCommands>
-        <controls:WindowCommands>
-            <Button Cursor="Hand" ToolTip="Settings" x:Name="SettingsButton"
-                    Click="SettingsButton_OnClick">
-                <Rectangle Width="16" Height="16" Fill="White">
-                    <Rectangle.OpacityMask>
-                        <VisualBrush Visual="{StaticResource appbar_settings}" />
-                    </Rectangle.OpacityMask>
-                </Rectangle>
-            </Button>
-        </controls:WindowCommands>
-    </controls:MetroWindow.RightWindowCommands>
     <Grid>
         <StackPanel x:Name="DropPanel" HorizontalAlignment="Center" VerticalAlignment="Center"
                 Orientation="Vertical">

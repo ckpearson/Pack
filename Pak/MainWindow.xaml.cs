@@ -43,7 +43,6 @@ namespace Pack
                 var uri = new Uri((string) data.GetData(DataFormats.Text));
                 byte[] imgData;
                 var proxy = WebRequest.DefaultWebProxy;
-                //var creds = await Settings.GetProxyCredentials();
                 proxy.Credentials = CredentialCache.DefaultCredentials;
                 using (var client = new WebClient
                 {
@@ -129,15 +128,6 @@ namespace Pack
             Image.Source = null;
             Message.Text = DropMessage;
             DragDrop.AddDropHandler(Border, OnDrop);
-        }
-
-        private void SettingsButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            var settingsWin = new SettingsWindow
-            {
-                Owner = this,
-            };
-            settingsWin.ShowDialog();
         }
     }
 }
