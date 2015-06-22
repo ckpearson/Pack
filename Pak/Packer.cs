@@ -5,11 +5,10 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Windows;
 using SevenZip;
 using Point = System.Drawing.Point;
 
-namespace Pak
+namespace Pack
 {
     public static class Packer
     {

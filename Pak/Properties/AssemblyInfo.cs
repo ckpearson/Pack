@@ -7,11 +7,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Pak")]
+[assembly: AssemblyTitle("Pack")]
 [assembly: AssemblyDescription("Image File Pack Application")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Pak")]
+[assembly: AssemblyProduct("Pack")]
 [assembly: AssemblyCopyright("Copyright Clint Pearson ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

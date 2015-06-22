@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Specialized;
-using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using MahApps.Metro.Controls;
-using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
 
-namespace Pak
+namespace Pack
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -36,7 +32,7 @@ namespace Pak
 
         
 
-        private const string DropMessage = "Drop Files or Pak'd Image Here";
+        private const string DropMessage = "Drop Files or Packed Image Here";
 
         private async void OnDrop(object sender, DragEventArgs e)
         {
@@ -46,7 +42,13 @@ namespace Pak
             {
                 var uri = new Uri((string) data.GetData(DataFormats.Text));
                 byte[] imgData;
-                using (var client = new WebClient())
+                var proxy = WebRequest.DefaultWebProxy;
+                //var creds = await Settings.GetProxyCredentials();
+                proxy.Credentials = CredentialCache.DefaultCredentials;
+                using (var client = new WebClient
+                {
+                    Proxy = proxy
+                })
                 {
                     imgData = await client.DownloadDataTaskAsync(uri);
                 }
@@ -127,6 +129,15 @@ namespace Pak
             Image.Source = null;
             Message.Text = DropMessage;
             DragDrop.AddDropHandler(Border, OnDrop);
+        }
+
+        private void SettingsButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            var settingsWin = new SettingsWindow
+            {
+                Owner = this,
+            };
+            settingsWin.ShowDialog();
         }
     }
 }

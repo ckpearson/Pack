@@ -1,12 +1,24 @@
-﻿<controls:MetroWindow x:Class="Pak.MainWindow"
+﻿<controls:MetroWindow x:Class="Pack.MainWindow"
                       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                       xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
-                      Title="Pak" Height="350" Width="350"
+                      Title="Pack" Height="350" Width="350"
                       WindowStartupLocation="CenterScreen"
                       BorderThickness="0" GlowBrush="Black"
                       ResizeMode="NoResize"
                       Topmost="True">
+    <controls:MetroWindow.RightWindowCommands>
+        <controls:WindowCommands>
+            <Button Cursor="Hand" ToolTip="Settings" x:Name="SettingsButton"
+                    Click="SettingsButton_OnClick">
+                <Rectangle Width="16" Height="16" Fill="White">
+                    <Rectangle.OpacityMask>
+                        <VisualBrush Visual="{StaticResource appbar_settings}" />
+                    </Rectangle.OpacityMask>
+                </Rectangle>
+            </Button>
+        </controls:WindowCommands>
+    </controls:MetroWindow.RightWindowCommands>
     <Grid>
         <StackPanel x:Name="DropPanel" HorizontalAlignment="Center" VerticalAlignment="Center"
                 Orientation="Vertical">

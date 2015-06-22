@@ -1,10 +1,10 @@
-## What is Pak?
+## What is Pack?
 
 Pack lets you take any file (say an excel workbook) and encode it as a PNG image for sharing online where file uploads aren't usually allowed.
 
 ## Why?
 
-It's not possible to share files like test data etc in GitHub issues / pull requests, by avoiding e-mail / shared drives, Pak overcomes:
+It's not possible to share files like test data etc in GitHub issues / pull requests, by avoiding e-mail / shared drives, Pack overcomes:
 
 1. Forgetting where that data is
 2. Accidental deletion of that data
@@ -12,7 +12,7 @@ It's not possible to share files like test data etc in GitHub issues / pull requ
 
 ## Limitations
 
-You can store pretty much any type of file you want to, Pak will ensure a minimum size of 200x200 pixels to make the image more visible; it fills in the non-data parts of the image with nice colours.
+You can store pretty much any type of file you want to, Pack will ensure a minimum size of 200x200 pixels to make the image more visible; it fills in the non-data parts of the image with nice colours.
 
 The data itself is LZMA compressed (7-zip) to help reduce the size of the image, but obviously some files are just going to be too big to practically share this way.
 
@@ -26,7 +26,7 @@ Just launch the application and you'll see the main screen:
 
 ![App Window](/readme-assets/appwin.PNG) 
 
-From here just drag the file you want to share, or the Pak'd image from a website; the app will then create an image for you / offer to save the unpacked file.
+From here just drag the file you want to share, or the Pack'd image from a website; the app will then create an image for you / offer to save the unpacked file.
 
 Once an image has been created, you'll see something like:
 
@@ -41,7 +41,7 @@ At a very high-level it does the following:
 1. Compresses the file you give it
 2. Drops the trailing zeroes from the end of the compressed data and remembers how many zeroes it got rid of (this makes the image smaller)
 3. Creates a byte array containing the following:
-    1. A special token so the app can recognise it's a Pak'd image
+    1. A special token so the app can recognise it's a Pack'd image
     2. The number of bytes the filename is long
     3. The filename in UTF-8 byte form
     4. The number of zeroes that were dropped
