@@ -1,19 +1,23 @@
 ﻿using System;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using MahApps.Metro.Controls;
 using Microsoft.Win32;
+using Pack.Packers;
 
 namespace Pack
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : MetroWindow
+    public partial class MainWindow : IInput
     {
+        private readonly IPacker[] _packers;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -22,103 +26,115 @@ namespace Pack
             {
                 DragDrop.DoDragDrop(Image, new DataObject(DataFormats.FileDrop, new[] {(string) Image.Tag}),
                     DragDropEffects.Copy);
-                
+
             });
 
             Message.Text = DropMessage;
 
             DragDrop.AddDropHandler(Border, OnDrop);
+
+            _packers = new IPacker[]
+            {
+                new V1Packer(),
+            };
         }
 
-        
-
         private const string DropMessage = "Drop Files or Packed Image Here";
+
+        private Task<byte[]> DownloadData(Uri uri)
+        {
+            var proxy = WebRequest.DefaultWebProxy;
+            proxy.Credentials = CredentialCache.DefaultCredentials;
+            using (var client = new WebClient
+            {
+                Proxy = proxy
+            })
+            {
+                return client.DownloadDataTaskAsync(uri);
+            }
+        }
+
+        private void ShowProgress()
+        {
+            DropPanel.Visibility = Visibility.Collapsed;
+            ProgressPanel.Visibility = Visibility.Visible;
+            GoAgainButton.Visibility = Visibility.Collapsed;
+            DragDrop.RemoveDropHandler(Border, OnDrop);
+        }
+
+        private void ShowInput()
+        {
+            DropPanel.Visibility = Visibility.Visible;
+            ProgressPanel.Visibility = Visibility.Collapsed;
+            DragDrop.AddDropHandler(Border, OnDrop);
+            GoAgainButton.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowImage()
+        {
+            DropPanel.Visibility = Visibility.Visible;
+            ProgressPanel.Visibility = Visibility.Collapsed;
+            GoAgainButton.Visibility = Visibility.Visible;
+            Message.Text = "Drag Image From Here";
+        }
+
+        private async Task HandleImage(byte[] imageData)
+        {
+            var packer = _packers.AsParallel().SingleOrDefault(p => p.DataIsForPacker(imageData));
+            if (packer == null)
+            {
+                MessageBox.Show(this, "Did not understand image");
+                return;
+            }
+            var unpacked = await Task.Run(() => packer.Unpack(imageData, this));
+            var sfd = new SaveFileDialog
+            {
+                Title = "Save File",
+                FileName = unpacked.Name,
+            };
+            var res = sfd.ShowDialog(this);
+            if (res == null || !res.Value) return;
+            File.WriteAllBytes(sfd.FileName, unpacked.Data);
+            ShowInput();
+        }
+
+        private async Task HandleFile(string filePath)
+        {
+            var packer = _packers.AsParallel().OrderBy(p => p.Version).First();
+            using (var bmp = await Task.Run(() => packer.CreateImage(File.ReadAllBytes(filePath), Path.GetFileName(filePath), this)))
+            {
+                var temp = Path.GetTempFileName();
+                var nTemp = Path.Combine(Path.GetDirectoryName(temp), Path.GetFileNameWithoutExtension(temp)) + ".png";
+                File.Delete(temp);
+                temp = nTemp;
+
+                bmp.Save(temp, ImageFormat.Png);
+                Image.Source = new BitmapImage(new Uri(temp, UriKind.Absolute));
+                Image.Tag = temp;
+            }
+            ShowImage();
+        }
 
         private async void OnDrop(object sender, DragEventArgs e)
         {
             var data = e.Data;
+            ShowProgress();
 
             if (data.GetDataPresent(DataFormats.Text))
             {
-                var uri = new Uri((string) data.GetData(DataFormats.Text));
-                byte[] imgData;
-                var proxy = WebRequest.DefaultWebProxy;
-                proxy.Credentials = CredentialCache.DefaultCredentials;
-                using (var client = new WebClient
-                {
-                    Proxy = proxy
-                })
-                {
-                    imgData = await client.DownloadDataTaskAsync(uri);
-                }
-                DropPanel.Visibility = Visibility.Collapsed;
-                ProgressPanel.Visibility = Visibility.Visible;
-                DragDrop.RemoveDropHandler(Border, OnDrop);
-
-                var details = await Task.Run(() => Packer.UnpackImage(imgData));
-                if (details == null)
-                {
-                    MessageBox.Show("Unable to unpack image, is it a correct image created with this program?", "Error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    ProgressPanel.Visibility = Visibility.Collapsed;
-                    DropPanel.Visibility = Visibility.Visible;
-                    DragDrop.AddDropHandler(Border, OnDrop);
-                    return;
-                }
-
-                var sfd = new SaveFileDialog
-                {
-                    FileName = details.Item1,
-                    AddExtension = true,
-                };
-                var res = sfd.ShowDialog();
-                if (res == null || !res.Value)
-                {
-                    ProgressPanel.Visibility = Visibility.Collapsed;
-                    DropPanel.Visibility = Visibility.Visible;
-                    DragDrop.AddDropHandler(Border, OnDrop);
-                    return;
-                }
-                File.WriteAllBytes(sfd.FileName, details.Item2);
-                ProgressPanel.Visibility = Visibility.Collapsed;
-                DropPanel.Visibility = Visibility.Visible;
-                DragDrop.AddDropHandler(Border, OnDrop);
+                await HandleImage(await DownloadData(new Uri((string) data.GetData(DataFormats.Text))));
             }
             else if (data.GetDataPresent(DataFormats.FileDrop))
             {
-                DropPanel.Visibility = Visibility.Collapsed;
-                ProgressPanel.Visibility = Visibility.Visible;
-                DragDrop.RemoveDropHandler(Border, OnDrop);
-                var dat = (string[]) data.GetData(DataFormats.FileDrop);
-                if (dat.Length > 1)
+                var files = (string[]) data.GetData(DataFormats.FileDrop);
+                if (files.Length == 1 && files[0].ToLowerInvariant().EndsWith(".png"))
                 {
-                    MessageBox.Show(this, "If you want to share multiple files at the same time, please zip / 7-zip them first.", "Multiple Files",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
-                    return;
+                    await HandleImage(await Task.Run(() => File.ReadAllBytes(files[0])));
                 }
-
-                var imgPath = Path.GetTempFileName();
-                var newName = Path.Combine(Path.GetDirectoryName(imgPath), Path.GetFileNameWithoutExtension(imgPath) + ".png");
-                File.Move(imgPath, newName);
-                imgPath = newName;
-                await Task.Run(() => Packer.CreateImage(dat[0], imgPath));
-                var bi = new BitmapImage();
-                bi.BeginInit();
-                bi.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                bi.CacheOption = BitmapCacheOption.None;
-                bi.UriSource = new Uri(imgPath, UriKind.Absolute);
-                bi.EndInit();
-                Image.Source = bi;
-                Image.Tag = imgPath;
-                Message.Text = "Drag Image to Comment Box";
-                GoAgainButton.Visibility = Visibility.Visible;
-                ProgressPanel.Visibility = Visibility.Collapsed;
-                DropPanel.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                throw new InvalidOperationException();
+                else if (files.Length == 1)
+                {
+                    await HandleFile(files[0]);
+                }
             }
         }
 
