@@ -5,6 +5,8 @@
                       Title="Pack" Height="350" Width="350"
                       WindowStartupLocation="CenterScreen"
                       BorderThickness="0" GlowBrush="Black"
+                      Icon="icon-32.ico"
+                      ShowIconOnTitleBar="False"
                       ResizeMode="NoResize"
                       Topmost="True">
     <Grid>

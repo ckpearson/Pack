@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using Pack.Packers;
+using Squirrel;
 
 namespace Pack
 {
@@ -37,6 +38,18 @@ namespace Pack
             {
                 new V1Packer(),
             };
+
+            Loaded += MainWindow_Loaded;
+        }
+
+        async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+#if !DEBUG
+            using (var mgr = new UpdateManager("http://ckpearson.github.io/Pack/Releases"))
+            {
+                await mgr.UpdateApp();
+            }
+#endif
         }
 
         private const string DropMessage = "Drop Files or Packed Image Here";
