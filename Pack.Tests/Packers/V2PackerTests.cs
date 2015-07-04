@@ -1,4 +1,5 @@
-﻿using Pack.Packers;
+﻿using System.IO;
+using Pack.Packers;
 
 namespace Pack.Tests.Packers
 {

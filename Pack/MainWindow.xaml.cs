@@ -116,7 +116,7 @@ namespace Pack
 
         private async Task HandleFile(string filePath)
         {
-            var packer = _packers.AsParallel().OrderBy(p => p.Version).First();
+            var packer = _packers.AsParallel().OrderByDescending(p => p.Version).First();
             using (var bmp = await Task.Run(() => packer.CreateImage(File.ReadAllBytes(filePath), Path.GetFileName(filePath), this)))
             {
                 var temp = Path.GetTempFileName();

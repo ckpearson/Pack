@@ -82,7 +82,7 @@ namespace Pack.Tests.Packers
             Assert.Throws<ArgumentNullException>(() => Packer.Unpack(new byte[] {12}, null));
         }
 
-        private static byte[] ProduceLikelyData()
+        protected virtual byte[] ProduceLikelyData()
         {
             using (var ms = new MemoryStream())
             {
@@ -111,25 +111,27 @@ namespace Pack.Tests.Packers
             }
         }
 
-        //[Theory]
-        //[InlineData("mushrooms", "a.txt")]
-        //[InlineData("everything is spiders", "z")]
-        //[InlineData("my fingers are trees", "jkjjjhdhhdhdh")]
-        //public void UnpackProducesSameData(string message, string fileName)
-        //{
-        //    var inData = Encoding.UTF8.GetBytes(message);
-        //    using (var bmp = Packer.CreateImage(inData, fileName, BuildInputForCreate()))
-        //    {
-        //        using (var ms = new MemoryStream())
-        //        {
-        //            bmp.Save(ms, ImageFormat.Png);
+        [Fact]
+        public void UnpackProducesSameData()
+        {
+            for (var x = 0; x < 100; x++)
+            {
+                var inData = ProduceLikelyData();
+                var fName = new string(Enumerable.Repeat('a', Random.Next(1, 15)).ToArray());
+                using (var bmp = Packer.CreateImage(inData, fName, BuildInputForCreate()))
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        bmp.Save(ms, ImageFormat.Png);
 
-        //            var unpacked = Packer.Unpack(ms.GetBuffer(), BuildInputForUnpack());
-        //            Assert.Equal(inData, unpacked.Data);
-        //            Assert.Equal(fileName, unpacked.Name);
-        //        }
-        //    }
-        //}
+                        var unpacked = Packer.Unpack(ms.GetBuffer(), BuildInputForUnpack());
+                        Assert.Equal(inData, unpacked.Data);
+                        Assert.Equal(fName, unpacked.Name);
+                    }
+
+                }
+            }
+        }
 
         protected virtual IInput BuildInputForCreate()
         {
