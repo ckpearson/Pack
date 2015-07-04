@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using Pack.Packers;
+using SevenZip;
 using Squirrel;
 
 namespace Pack
@@ -106,8 +107,10 @@ namespace Pack
                 FileName = unpacked.Name,
             };
             var res = sfd.ShowDialog(this);
-            if (res == null || !res.Value) return;
-            File.WriteAllBytes(sfd.FileName, unpacked.Data);
+            if (res.Value)
+            {
+                File.WriteAllBytes(sfd.FileName, unpacked.Data);
+            }
             ShowInput();
         }
 
@@ -140,7 +143,11 @@ namespace Pack
             else if (data.GetDataPresent(DataFormats.FileDrop))
             {
                 var files = (string[]) data.GetData(DataFormats.FileDrop);
-                if (files.Length == 1 && files[0].ToLowerInvariant().EndsWith(".png"))
+                if (files == null || files.Length == 0)
+                {
+                    ShowInput();
+                }
+                else if (files.Length == 1 && files[0].ToLowerInvariant().EndsWith(".png"))
                 {
                     await HandleImage(await Task.Run(() => File.ReadAllBytes(files[0])));
                 }

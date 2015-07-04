@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Pack</RootNamespace>
     <AssemblyName>Pack</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -36,6 +36,7 @@
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -90,6 +91,9 @@
     </Reference>
     <Reference Include="DeltaCompressionDotNet.PatchApi">
       <HintPath>..\packages\DeltaCompressionDotNet.1.0.0\lib\net45\DeltaCompressionDotNet.PatchApi.dll</HintPath>
+    </Reference>
+    <Reference Include="Functional.Maybe">
+      <HintPath>..\packages\Functional.Maybe.1.0.3\lib\Functional.Maybe.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\packages\squirrel.windows.0.99.1.1\lib\Net45\ICSharpCode.SharpZipLib.dll</HintPath>
@@ -150,6 +154,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Packers\Manipulators\ContiguousRangeCollapseStep.cs" />
+    <Compile Include="Packers\Manipulators\IDataManipulationStep.cs" />
+    <Compile Include="Packers\Manipulators\ManipulationEx.cs" />
+    <Compile Include="Packers\Manipulators\ManipulationResult.cs" />
+    <Compile Include="Packers\Manipulators\SevenZipCompressionStep.cs" />
+    <Compile Include="Packers\Manipulators\TrailingZeroEliminationStep.cs" />
+    <Compile Include="Packers\V2Packer.cs" />
     <Compile Include="UnpackedFile.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

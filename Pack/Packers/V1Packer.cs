@@ -50,7 +50,7 @@ namespace Pack.Packers
             }
         }
 
-        private byte[] UnsquashImageData(byte[] imgData)
+        private static byte[] UnsquashImageData(byte[] imgData)
         {
             byte[] data;
             using (var ms = new MemoryStream(imgData))
@@ -86,6 +86,10 @@ namespace Pack.Packers
 
         public UnpackedFile Unpack(byte[] data, IInput input)
         {
+            if (data == null) throw new ArgumentNullException("data");
+            if (data.Length == 0) throw new ArgumentException(@"Data is empty", "data");
+            if (input == null) throw new ArgumentNullException("input");
+
             if (!DataIsForPacker(data)) throw new InvalidOperationException("Data not for this packer!");
             data = UnsquashImageData(data);
 
@@ -104,7 +108,12 @@ namespace Pack.Packers
 
         public Bitmap CreateImage(byte[] data, string fileName, IInput input)
         {
-            var dropped = data.DropTrailingZeroes();
+            if (data == null) throw new ArgumentNullException("data");
+            if (data.Length == 0) throw new ArgumentException(@"Data is empty", "data");
+            if (string.IsNullOrEmpty(fileName)) throw new ArgumentNullException("fileName");
+            if (input == null) throw new ArgumentNullException("input");
+
+            var dropped = SevenZipCompressor.CompressBytes(data).DropTrailingZeroes();
             var fNameBytes = Encoding.UTF8.GetBytes(fileName);
             var fNameLengthBytes = BitConverter.GetBytes(fNameBytes.Length);
             var lengthBytes = BitConverter.GetBytes(dropped.Item2.Length);
