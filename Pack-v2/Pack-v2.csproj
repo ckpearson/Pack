@@ -140,7 +140,6 @@
     <Compile Include="Packers\V1Packer.cs" />
     <Compile Include="Security\Encryption.cs" />
     <Compile Include="Security\PackKeyEncoder.cs" />
-    <Compile Include="Security\SecuringContext.cs" />
     <Compile Include="Tools\BindingEx.cs" />
     <Compile Include="Tools\Ex.cs" />
     <Compile Include="ViewModels\AuthPasswordEntryViewModel.cs" />

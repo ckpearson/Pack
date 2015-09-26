@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -17,7 +20,11 @@ namespace Pack_v2.ViewModels
 {
     public class PackScreenViewModel : ReactiveObject
     {
-        private readonly Func<Task<SecuringContext>> _getSecuringContext;
+        private readonly PackKey _originatingKey;
+        private readonly Func<IReadOnlyList<Recipient>> _getRecipientsFunc;
+        private readonly string _pass;
+        private readonly string _originatorName;
+        private readonly Func<string, byte[]> _publicKeyRetrievalFunc;
         private const string DragFileMessage = "Drag File or Packed Image Here";
         private const string DragImageMessage = "Drag Packed Image from Here to GitHub";
 
@@ -27,11 +34,17 @@ namespace Pack_v2.ViewModels
         private BitmapImage _currentImage;
         private string _imageTag;
         private readonly ReactiveCommand<object> _goAgain;
-        private readonly ObservableAsPropertyHelper<bool> _canGoAgain; 
+        private readonly ObservableAsPropertyHelper<bool> _canGoAgain;
 
-        public PackScreenViewModel(Func<Task<SecuringContext>> getSecuringContext)
+        public PackScreenViewModel(PackKey originatingKey, Func<IReadOnlyList<Recipient>> getRecipientsFunc, string pass,
+            string originatorName,
+            Func<string,byte[]> publicKeyRetrievalFunc)
         {
-            _getSecuringContext = getSecuringContext;
+            _originatingKey = originatingKey;
+            _getRecipientsFunc = getRecipientsFunc;
+            _pass = pass;
+            _originatorName = originatorName;
+            _publicKeyRetrievalFunc = publicKeyRetrievalFunc;
             _progressShowing = this.WhenAnyValue(v => v.IsDropperAvailable).Select(b => !b).ToProperty(this,
                 v => v.IsProgressShowing, out _progressShowing);
 
@@ -124,27 +137,55 @@ namespace Pack_v2.ViewModels
             }
         }
 
+        [Serializable]
+        public struct SecuredDataDto
+        {
+            public byte[] EncryptedData { get; set; }
+            public byte[] Signature { get; set; }
+            public string OriginatorName { get; set; }
+        }
+
         private async Task HandleFile(string file)
         {
-            var ctx = await _getSecuringContext();
-            if (ctx.TargetPublicKeys.Count == 0)
+            var v1 = new V1Packer();
+            var recipients = _getRecipientsFunc();
+            var fileData = await Task.Run(() => File.ReadAllBytes(file));
+            Bitmap bmp;
+            var fileName = Path.GetFileName(file);
+            if (recipients.Count == 0)
             {
-                var v1 = new V1Packer();
-                using (var bmp = await Task.Run(() => v1.CreateImage(File.ReadAllBytes(file), Path.GetFileName(file))))
-                {
-                    var temp = Path.GetTempFileName();
-                    var nTemp = Path.Combine(Path.GetDirectoryName(temp), Path.GetFileNameWithoutExtension(temp)) + ".png";
-                    File.Delete(temp);
-                    temp = nTemp;
-
-                    bmp.Save(temp, ImageFormat.Png);
-                    ImageTag = temp;
-                    CurrentImage = new BitmapImage(new Uri(temp, UriKind.Absolute));
-                }
-                IsDropperAvailable = true;
-                Message = DragImageMessage;
-                return;
+                bmp = await Task.Run(() => v1.CreateImage(fileData, fileName, false));
             }
+            else
+            {
+                var secured = Encryption.SecureData(fileData, _pass, _originatingKey);
+                var securedData = new SecuredDataDto
+                {
+                    EncryptedData = secured.EncryptedData,
+                    Signature = secured.Signature,
+                    OriginatorName = _originatorName,
+                };
+                var bform = new BinaryFormatter();
+                using (var ms = new MemoryStream())
+                {
+                    bform.Serialize(ms, securedData);
+                    bmp = await Task.Run(() => v1.CreateImage(ms.ToArray(),
+                        fileName, true));
+                }
+            }
+
+            using (bmp)
+            {
+                var temp = Path.GetTempFileName();
+                var nTemp = Path.Combine(Path.GetDirectoryName(temp), Path.GetFileNameWithoutExtension(temp)) + ".png";
+                File.Delete(temp);
+                temp = nTemp;
+                bmp.Save(temp, ImageFormat.Png);
+                CurrentImage = new BitmapImage(new Uri(temp, UriKind.Absolute));
+                ImageTag = temp;
+            }
+            IsDropperAvailable = true;
+            Message = DragImageMessage;
         }
 
         private async Task HandleImage(byte[] imageData)
@@ -153,6 +194,15 @@ namespace Pack_v2.ViewModels
             if (v1.DataIsForPacker(imageData))
             {
                 var unpacked = await Task.Run(() => v1.Unpack(imageData));
+                if (unpacked.Secured)
+                {
+                    using (var ms = new MemoryStream(unpacked.Data))
+                    {
+                        var bform = new BinaryFormatter();
+                        var secDto = (SecuredDataDto) bform.Deserialize(ms);
+                        var pubKey = _publicKeyRetrievalFunc(secDto.OriginatorName);
+                    }
+                }
                 var sfd = new SaveFileDialog
                 {
                     Title = "Save File",
@@ -174,6 +224,18 @@ namespace Pack_v2.ViewModels
                 Message = DragFileMessage;
                 return;
             }
+        }
+    }
+
+    public class Recipient
+    {
+        public int AccountId { get; }
+        public byte[] PackPublicKey { get; }
+
+        public Recipient(int accountId, byte[] packPublicKey)
+        {
+            AccountId = accountId;
+            PackPublicKey = packPublicKey;
         }
     }
 }

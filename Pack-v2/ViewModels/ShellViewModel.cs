@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Xml.Linq;
 using Akavache;
 using Octokit;
@@ -74,7 +75,7 @@ namespace Pack_v2.ViewModels
                                     Message = "Checking Pack Auth Info"
                                 };
 
-                                var packVm = new PackScreenViewModel(async () => new SecuringContext());
+                                
 
                                 var hasContent = !string.IsNullOrEmpty(contents.Content);
                                 vm = new AuthPasswordEntryViewModel(!hasContent,
@@ -91,7 +92,23 @@ namespace Pack_v2.ViewModels
                                                     ex => Observable.Empty<RepositoryContentChangeSet>())
                                                 .Subscribe(_ =>
                                                 {
-                                                    CurrentViewModel = packVm;
+                                                    //CurrentViewModel = new PackScreenViewModel(async () =>
+                                                    //    new SecuringContext(new[] {key.PublicKey}),
+                                                    //    async () =>
+                                                    //    {
+                                                    //        var mre = new ManualResetEventSlim();
+                                                    //        var p = "";
+                                                    //        var pvm = CurrentViewModel;
+                                                    //        CurrentViewModel = new AuthPasswordEntryViewModel(false,
+                                                    //            Observer.Create<string>(pss =>
+                                                    //            {
+                                                    //                p = pss;
+                                                    //                mre.Set();
+                                                    //            }));
+                                                    //        mre.Wait();
+                                                    //        return p;
+                                                    //    },
+                                                    //    key);
                                                 });
                                         }
                                         else
@@ -103,11 +120,18 @@ namespace Pack_v2.ViewModels
                                                 key.Challenge);
                                             if (decryptedChallenge.SequenceEqual(key.Salt))
                                             {
-                                                CurrentViewModel = packVm;
+                                                CurrentViewModel = new PackScreenViewModel(key,
+                                                    () => new List<Recipient> {new Recipient(5690115, key.PublicKey)},
+                                                    pass, contents.,
+                                                    id =>
+                                                        PackKeyEncoder.FromXml(
+                                                            XElement.Parse(client.Repository.Content.GetAllContents(
+                                                                id, "pack-app-hub", "pack-key.xml").Wait().Content))
+                                                            .PublicKey);
                                             }
                                             else
                                             {
-                                                
+
                                             }
                                         }
                                     }));
