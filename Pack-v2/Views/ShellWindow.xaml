@@ -1,0 +1,35 @@
+﻿<controls:MetroWindow x:Class="Pack_v2.Views.ShellWindow"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      d:DataContext="{d:DesignInstance viewModels:ShellViewModel, IsDesignTimeCreatable=False}"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:local="clr-namespace:Pack_v2.Views"
+                      xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+                      xmlns:reactiveUi="clr-namespace:ReactiveUI;assembly=ReactiveUI"
+                      xmlns:viewModels="clr-namespace:Pack_v2.ViewModels"
+                      mc:Ignorable="d"
+                      WindowStartupLocation="CenterScreen"
+                      Title="Pack" MinWidth="300" MinHeight="300"
+                      ResizeMode="CanMinimize"
+                      SizeToContent="WidthAndHeight"
+                      BorderThickness="0"
+                      GlowBrush="Black">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        
+        <reactiveUi:ViewModelViewHost IsTabStop="False" ViewModel="{Binding CurrentViewModel, Mode=OneWay}"
+                                      HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                      VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" />
+    </Grid>
+    <!--<StackPanel Orientation="Vertical">
+        <reactiveUi:ViewModelViewHost IsTabStop="False" ViewModel="{Binding CurrentViewModel}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                      VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="3" Background="Orange">
+            <TextBlock Text="a"></TextBlock>
+        </StackPanel>
+    </StackPanel>-->
+</controls:MetroWindow>

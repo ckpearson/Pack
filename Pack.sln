@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pack", "Pack\Pack.csproj", "{F7307383-3E3D-4C7A-BBBC-A686DA20E8B8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pack.Tests", "Pack.Tests\Pack.Tests.csproj", "{D6C2BF64-8AE8-4677-92F6-331E6B460FAB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pack-v2", "Pack-v2\Pack-v2.csproj", "{11D4C085-5E8C-4B04-9028-37D19F218939}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{D6C2BF64-8AE8-4677-92F6-331E6B460FAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6C2BF64-8AE8-4677-92F6-331E6B460FAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6C2BF64-8AE8-4677-92F6-331E6B460FAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11D4C085-5E8C-4B04-9028-37D19F218939}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11D4C085-5E8C-4B04-9028-37D19F218939}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11D4C085-5E8C-4B04-9028-37D19F218939}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11D4C085-5E8C-4B04-9028-37D19F218939}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
