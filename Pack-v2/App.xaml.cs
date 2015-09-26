@@ -41,6 +41,7 @@ namespace Pack_v2
             locator.Register(() => new ProgressView(), typeof (IViewFor<ProgressViewModel>));
             locator.Register(() => new GitHubLoginView(), typeof(IViewFor<GitHubLoginViewModel>));
             locator.Register(() => new AuthPasswordEntryView(), typeof (IViewFor<AuthPasswordEntryViewModel>));
+            locator.Register(() => new PackScreenView(), typeof(IViewFor<PackScreenViewModel>));
         }
     }
 }

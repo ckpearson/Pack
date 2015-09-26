@@ -10,9 +10,9 @@
                       xmlns:viewModels="clr-namespace:Pack_v2.ViewModels"
                       mc:Ignorable="d"
                       WindowStartupLocation="CenterScreen"
-                      Title="Pack" MinWidth="300" MinHeight="300"
+                      Title="Pack" Width="400" Height="400"
+                      Topmost="True"
                       ResizeMode="CanMinimize"
-                      SizeToContent="WidthAndHeight"
                       BorderThickness="0"
                       GlowBrush="Black">
     <Grid>

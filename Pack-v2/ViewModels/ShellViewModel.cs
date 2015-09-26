@@ -74,6 +74,8 @@ namespace Pack_v2.ViewModels
                                     Message = "Checking Pack Auth Info"
                                 };
 
+                                var packVm = new PackScreenViewModel(async () => new SecuringContext());
+
                                 var hasContent = !string.IsNullOrEmpty(contents.Content);
                                 vm = new AuthPasswordEntryViewModel(!hasContent,
                                     Observer.Create<string>(pass =>
@@ -89,7 +91,7 @@ namespace Pack_v2.ViewModels
                                                     ex => Observable.Empty<RepositoryContentChangeSet>())
                                                 .Subscribe(_ =>
                                                 {
-
+                                                    CurrentViewModel = packVm;
                                                 });
                                         }
                                         else
@@ -101,7 +103,7 @@ namespace Pack_v2.ViewModels
                                                 key.Challenge);
                                             if (decryptedChallenge.SequenceEqual(key.Salt))
                                             {
-                                                
+                                                CurrentViewModel = packVm;
                                             }
                                             else
                                             {
