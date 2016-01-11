@@ -2,9 +2,10 @@
 using System.Drawing;
 using System.IO;
 using CommandLine;
+using Pack.Compression.SevenZip;
 using Pack.Core.Image;
+using Pack.Core.Palette;
 using Pack.Runner.Options;
-using SevenZip;
 
 namespace Pack.Runner
 {
@@ -60,7 +61,7 @@ namespace Pack.Runner
             using (var bmp = (Bitmap) Image.FromFile(openOptions.InputFilePath))
             {
                 var output = openOptions.OutputFilePath.TrimEnd('\\');
-                var res = Reader.ReadData(bmp, SevenZipExtractor.ExtractBytes);
+                var res = Reader.ReadData(bmp, new Compressor().DeCompress);
                 if (Path.HasExtension(output))
                 {
                     File.WriteAllBytes(output, res.Item2);
@@ -98,19 +99,12 @@ namespace Pack.Runner
                     @"Input file not found", makeOptions.InputFilePath);
 
             var random = new Random();
-            var palette = new[]
-            {
-                Color.FromArgb(86, 81, 117),
-                Color.FromArgb(83, 138, 149),
-                Color.FromArgb(103, 183, 158),
-                Color.FromArgb(255, 183, 39),
-                Color.FromArgb(228, 73, 28)
-            };
+            var palette = Palettes.Default;
 
             using (var bmp = Writer.CreatePackedImage(File.ReadAllBytes(makeOptions.InputFilePath),
                 Path.GetFileName(makeOptions.InputFilePath),
                 (_) => palette[random.Next(0, palette.Length)],
-                SevenZipCompressor.CompressBytes,
+                new Compressor().Compress,
                 200,
                 200))
             {

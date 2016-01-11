@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pack.Core", "Pack.Core\Pack
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pack.Runner", "Pack.Runner\Pack.Runner.csproj", "{35368B30-C0C5-4520-A9A2-0EEFB63341FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pack.SevenZip", "Pack.SevenZip\Pack.SevenZip.csproj", "{05289F63-BC26-4EC0-86AC-8A0E07CA7672}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{35368B30-C0C5-4520-A9A2-0EEFB63341FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35368B30-C0C5-4520-A9A2-0EEFB63341FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35368B30-C0C5-4520-A9A2-0EEFB63341FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05289F63-BC26-4EC0-86AC-8A0E07CA7672}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05289F63-BC26-4EC0-86AC-8A0E07CA7672}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05289F63-BC26-4EC0-86AC-8A0E07CA7672}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05289F63-BC26-4EC0-86AC-8A0E07CA7672}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

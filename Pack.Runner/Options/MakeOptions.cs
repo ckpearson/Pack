@@ -9,5 +9,8 @@ namespace Pack.Runner.Options
 
         [Option('o', "outputFilePath", HelpText = "The path to use for the produced image", Required = true)]
         public string OutputFilePath { get; set; }
+
+        [Option('p', "palette", HelpText = "Specifies the palette to use for non-data pixels; these are named or a semi-colon separated collection of RGB values.")]
+        public string Palette { get; set; }
     }
 }
